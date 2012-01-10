@@ -1,10 +1,11 @@
 require 'formula'
 
 class Ruby < Formula
-  url 'http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-p0.tar.bz2'
+  url 'http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p180.tar.bz2'
   homepage 'http://www.ruby-lang.org/en/'
   head 'http://svn.ruby-lang.org/repos/ruby/trunk/', :using => :svn
-  sha256 'ca8ba4e564fc5f98b210a5784e43dfffef9471222849e46f8e848b37e9f38acf'
+  md5 '68510eeb7511c403b91fe5476f250538'
+  GNU_GCC = '/usr/bin/gcc-4.2'
 
   depends_on 'readline'
   depends_on 'libyaml'
@@ -23,6 +24,15 @@ class Ruby < Formula
   end
 
   def install
+    # Fibers don't work with when compiling Ruby with LLVM gcc.
+    if File.exist?(GNU_GCC)
+      ENV['CC'] = GNU_GCC
+    else
+      puts "Warning! real GNU GCC not found. May have problems with Fibers"
+      puts "when using LLVM gcc. Get real gcc at:"
+      puts "https://github.com/jcliff/osx-gcc-installer/downloads"
+    end
+
     ruby_lib = HOMEBREW_PREFIX+"lib/ruby"
 
     if File.exist? ruby_lib and File.symlink? ruby_lib
